@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!-- VPN permission -->
     <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
 
     <application
@@ -17,7 +13,6 @@
         android:allowBackup="false"
         android:fullBackupContent="false">
 
-        <!-- Main Flutter Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,7 +31,6 @@
             </intent-filter>
         </activity>
 
-        <!-- V2Ray VPN Service -->
         <service
             android:name="com.v2ray.ang.service.V2RayVpnService"
             android:exported="false"
@@ -46,7 +40,6 @@
             </intent-filter>
         </service>
 
-        <!-- Flutter background service -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
