@@ -28,26 +28,29 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
+      - name: Scaffold fresh Flutter project and overlay our source
+        run: |
+          # Create a clean valid Flutter project
+          flutter create --org com.example --project-name flutter_v2ray_vpn /tmp/fresh
+
+          # Replace the fresh android folder entirely with the generated one
+          rm -rf android
+          cp -r /tmp/fresh/android .
+
+          # Overlay our custom AndroidManifest
+          cp -f ci_android/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+
+          # Overlay our custom build.gradle
+          cp -f ci_android/build.gradle android/app/build.gradle
+
+          # Overlay gradle.properties
+          cp -f ci_android/gradle.properties android/gradle.properties
+
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Create a temp project to get valid android skeleton
-        run: |
-          flutter create --org com.example --project-name flutter_v2ray_vpn /tmp/base_project
-          # Copy only the generated android skeleton files we need
-          cp -r /tmp/base_project/android/gradle ./android/
-          cp /tmp/base_project/android/gradlew ./android/gradlew
-          cp /tmp/base_project/android/gradlew.bat ./android/gradlew.bat
-          chmod +x ./android/gradlew
-          # Copy kotlin main activity only if ours doesn't exist properly
-          mkdir -p android/app/src/main/kotlin/com/example/flutter_v2ray_vpn
-          cp /tmp/base_project/android/app/src/main/kotlin/com/example/flutter_v2ray_vpn/MainActivity.kt \
-             android/app/src/main/kotlin/com/example/flutter_v2ray_vpn/MainActivity.kt || true
-          # Copy mipmap icons
-          cp -r /tmp/base_project/android/app/src/main/res/mipmap-* android/app/src/main/res/ || true
-
       - name: Build debug APK
-        run: flutter build apk --debug --verbose
+        run: flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
