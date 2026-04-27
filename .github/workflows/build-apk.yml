@@ -28,36 +28,43 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-      - name: Build in clean scaffold
+      - name: Create clean scaffold
         run: |
-          # 1. Create a 100% valid Flutter project in /tmp
           flutter create --org com.example --project-name flutter_v2ray_vpn /tmp/build_project
 
-          # 2. Copy our Dart source into it
+      - name: Overlay our source
+        run: |
           cp -r $GITHUB_WORKSPACE/lib /tmp/build_project/
           cp $GITHUB_WORKSPACE/pubspec.yaml /tmp/build_project/pubspec.yaml
-
-          # 3. Apply our custom AndroidManifest (VPN permissions)
           cp $GITHUB_WORKSPACE/ci_android/AndroidManifest.xml \
              /tmp/build_project/android/app/src/main/AndroidManifest.xml
-
-          # 4. Apply our custom build.gradle (minSdk 21, ndkVersion)
           cp $GITHUB_WORKSPACE/ci_android/build.gradle \
              /tmp/build_project/android/app/build.gradle
-
-          # 5. Apply gradle.properties
           cp $GITHUB_WORKSPACE/ci_android/gradle.properties \
              /tmp/build_project/android/gradle.properties
 
-          # 6. Get dependencies
+      - name: Install dependencies
+        run: |
           cd /tmp/build_project
           flutter pub get
 
-          # 7. Build
+      - name: Remove v1 plugin registrant if present
+        run: |
+          # flutter_v2ray may ship a v1 GeneratedPluginRegistrant — delete it
+          find /tmp/build_project/android -name "GeneratedPluginRegistrant.java" -delete
+          find /home/runner/.pub-cache -path "*/flutter_v2ray*/android/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" -delete || true
+          # Also patch flutter_v2ray plugin.gradle if it references v1 embedding
+          find /home/runner/.pub-cache -path "*/flutter_v2ray*" -name "*.gradle" | xargs grep -l "registerWith" | while read f; do
+            sed -i 's/registerWith(registrar)/onAttachedToEngine(binding)/g' "$f" || true
+          done
+
+      - name: Build debug APK
+        run: |
+          cd /tmp/build_project
           flutter build apk --debug
 
-          # 8. Copy APK back to workspace for upload
-          cp build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/app-debug.apk
+      - name: Copy APK to workspace
+        run: cp /tmp/build_project/build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
