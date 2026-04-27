@@ -1,0 +1,35 @@
+name: flutter_v2ray_vpn
+description: A production-ready Flutter VPN app using V2Ray protocol with dynamic subscription.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # V2Ray protocol engine
+  flutter_v2ray: ^1.1.9
+
+  # State management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Networking
+  http: ^1.2.1
+
+  # UI
+  cupertino_icons: ^1.0.6
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  riverpod_generator: ^2.4.0
+  build_runner: ^2.4.9
+
+flutter:
+  uses-material-design: true
