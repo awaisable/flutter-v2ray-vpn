@@ -48,20 +48,26 @@ jobs:
           cd /tmp/build_project
           flutter pub get
 
-      - name: Remove v1 plugin registrant if present
+      - name: Show flutter_v2ray android files (debug)
         run: |
-          # flutter_v2ray may ship a v1 GeneratedPluginRegistrant — delete it
-          find /tmp/build_project/android -name "GeneratedPluginRegistrant.java" -delete
-          find /home/runner/.pub-cache -path "*/flutter_v2ray*/android/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" -delete || true
-          # Also patch flutter_v2ray plugin.gradle if it references v1 embedding
-          find /home/runner/.pub-cache -path "*/flutter_v2ray*" -name "*.gradle" | xargs grep -l "registerWith" | while read f; do
-            sed -i 's/registerWith(registrar)/onAttachedToEngine(binding)/g' "$f" || true
-          done
+          echo "=== flutter_v2ray android folder ==="
+          find /home/runner/.pub-cache/hosted -path "*/flutter_v2ray*" -name "*.java" -o \
+               -path "*/flutter_v2ray*" -name "*.kt" -o \
+               -path "*/flutter_v2ray*" -name "*.gradle" | head -40
+          echo "=== plugin.dart ==="
+          find /home/runner/.pub-cache/hosted -path "*/flutter_v2ray*" -name "pubspec.yaml" | xargs cat || true
+
+      - name: Patch flutter_v2ray v1 embedding
+        run: |
+          # Find the plugin's AndroidManifest or plugin class and show content
+          PLUGIN_DIR=$(find /home/runner/.pub-cache/hosted -type d -name "flutter_v2ray*" | head -1)
+          echo "Plugin dir: $PLUGIN_DIR"
+          find "$PLUGIN_DIR" -type f | head -50
 
       - name: Build debug APK
         run: |
           cd /tmp/build_project
-          flutter build apk --debug --ignore-deprecation
+          flutter build apk --debug
 
       - name: Copy APK to workspace
         run: cp /tmp/build_project/build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/
