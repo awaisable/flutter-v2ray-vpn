@@ -18,7 +18,7 @@ dependencies:
   riverpod_annotation: ^2.3.5
 
   # Networking
-  http: ^1.2.1
+  http: ^1.1.0
 
   # UI
   cupertino_icons: ^1.0.6
