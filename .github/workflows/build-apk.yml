@@ -25,6 +25,26 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
+      - name: Regenerate Android/iOS with v2 embedding
+        run: |
+          # Backup our source
+          cp -r lib /tmp/lib_backup
+          cp pubspec.yaml /tmp/pubspec_backup.yaml
+          
+          # Regenerate the project (this creates v2 embedding structure)
+          flutter create --org com.example --project-name flutter_v2ray_vpn .
+          
+          # Restore our source
+          rm -rf lib
+          cp -r /tmp/lib_backup lib
+          cp /tmp/pubspec_backup.yaml pubspec.yaml
+
+      - name: Apply custom Android config
+        run: |
+          # Apply our VPN permissions and config
+          cp ci_android/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          cp ci_android/gradle.properties android/gradle.properties
+
       - name: Get dependencies
         run: flutter pub get
 
