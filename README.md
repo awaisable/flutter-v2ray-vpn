@@ -2,12 +2,21 @@
 
 A production-ready Flutter VPN app using the V2Ray protocol (VMess/VLess) with dynamic server subscriptions fetched from GitHub.
 
-## Quick Start
+## 🚀 Quick Start
+
+**For detailed build instructions, see [BUILD.md](BUILD.md)**
 
 ```bash
+git clone https://github.com/awaisable/flutter-v2ray-vpn.git
+cd flutter-v2ray-vpn
+flutter create --org com.example --project-name flutter_v2ray_vpn .
+cp ci_android/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+cp ci_android/gradle.properties android/gradle.properties
 flutter pub get
-flutter run
+flutter build apk --debug
 ```
+
+APK output: `build/app/outputs/flutter-apk/app-debug.apk`
 
 ## Architecture
 
