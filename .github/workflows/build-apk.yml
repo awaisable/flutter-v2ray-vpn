@@ -5,9 +5,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,43 +19,20 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.16.9'
           channel: 'stable'
-          cache: true
 
       - name: Flutter version
         run: flutter --version
 
-      - name: Create clean scaffold
-        run: |
-          flutter create --org com.example --project-name flutter_v2ray_vpn /tmp/build_project
+      - name: Get dependencies
+        run: flutter pub get
 
-      - name: Overlay our source
-        run: |
-          cp -r $GITHUB_WORKSPACE/lib /tmp/build_project/
-          cp $GITHUB_WORKSPACE/pubspec.yaml /tmp/build_project/pubspec.yaml
-          cp $GITHUB_WORKSPACE/ci_android/AndroidManifest.xml \
-             /tmp/build_project/android/app/src/main/AndroidManifest.xml
-          cp $GITHUB_WORKSPACE/ci_android/build.gradle \
-             /tmp/build_project/android/app/build.gradle
-          cp $GITHUB_WORKSPACE/ci_android/gradle.properties \
-             /tmp/build_project/android/gradle.properties
-
-      - name: Install dependencies
-        run: |
-          cd /tmp/build_project
-          flutter pub get
-
-      - name: Build debug APK
-        run: |
-          cd /tmp/build_project
-          flutter build apk --debug
-
-      - name: Copy APK to workspace
-        run: cp /tmp/build_project/build/app/outputs/flutter-apk/app-debug.apk $GITHUB_WORKSPACE/
+      - name: Build APK
+        run: flutter build apk --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: app-debug.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk

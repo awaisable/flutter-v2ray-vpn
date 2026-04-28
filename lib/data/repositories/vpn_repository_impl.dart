@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter_vless/flutter_vless.dart';
+import 'package:flutter_v2ray/flutter_v2ray.dart';
 
 import '../../core/error/failures.dart';
 import '../../domain/entities/server_config.dart';
@@ -8,32 +8,27 @@ import '../../domain/entities/vpn_status.dart';
 import '../../domain/repositories/vpn_repository.dart';
 
 class VpnRepositoryImpl implements VpnRepository {
-  late final FlutterVless _vless;
+  late final FlutterV2ray _v2ray;
 
   final _statusController = StreamController<VpnStatus>.broadcast();
   final _trafficController = StreamController<TrafficStats>.broadcast();
 
   VpnStatus _currentStatus = VpnStatus.initial;
 
-  // For computing speed deltas
   int _lastUpload = 0;
   int _lastDownload = 0;
   DateTime _lastTrafficTime = DateTime.now();
 
   VpnRepositoryImpl() {
-    _vless = FlutterVless(
+    _v2ray = FlutterV2ray(
       onStatusChanged: _onStatusChanged,
     );
-    _vless.initializeVless(
-      providerBundleIdentifier: 'com.example.flutter-v2ray-vpn.VPNProvider',
-      groupIdentifier: 'group.com.example.flutter-v2ray-vpn',
-    );
+    _v2ray.initializeV2Ray();
   }
 
-  void _onStatusChanged(VlessStatus status) {
+  void _onStatusChanged(V2RayStatus status) {
     final state = _mapState(status.state);
 
-    // Parse traffic from status
     final upload = status.upload;
     final download = status.download;
     final now = DateTime.now();
@@ -90,16 +85,16 @@ class VpnRepositoryImpl implements VpnRepository {
   @override
   Future<Failure?> connect(ServerConfig server) async {
     try {
-      final hasPermission = await _vless.requestPermission();
+      final hasPermission = await _v2ray.requestPermission();
       if (!hasPermission) return const PermissionFailure();
 
-      final parser = FlutterVless.parseFromURL(server.rawUri);
+      final parser = FlutterV2ray.parseFromURL(server.rawUri);
 
-      await _vless.startVless(
+      await _v2ray.startV2Ray(
         remark: server.remark,
         config: parser.getFullConfiguration(),
         blockedApps: null,
-        bypassSubnets: FlutterVless.defaultBypassSubnets(),
+        bypassSubnets: null,
         proxyOnly: false,
       );
       return null;
@@ -111,15 +106,15 @@ class VpnRepositoryImpl implements VpnRepository {
   @override
   Future<void> disconnect() async {
     try {
-      _vless.stopVless();
+      _v2ray.stopV2Ray();
     } catch (_) {}
   }
 
   @override
   Future<int> ping(ServerConfig server) async {
     try {
-      final parser = FlutterVless.parseFromURL(server.rawUri);
-      final delay = await _vless.getServerDelay(
+      final parser = FlutterV2ray.parseFromURL(server.rawUri);
+      final delay = await _v2ray.getServerDelay(
         config: parser.getFullConfiguration(),
       );
       return delay;
