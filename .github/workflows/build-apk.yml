@@ -48,22 +48,6 @@ jobs:
           cd /tmp/build_project
           flutter pub get
 
-      - name: Show flutter_v2ray android files (debug)
-        run: |
-          echo "=== flutter_v2ray android folder ==="
-          find /home/runner/.pub-cache/hosted -path "*/flutter_v2ray*" -name "*.java" -o \
-               -path "*/flutter_v2ray*" -name "*.kt" -o \
-               -path "*/flutter_v2ray*" -name "*.gradle" | head -40
-          echo "=== plugin.dart ==="
-          find /home/runner/.pub-cache/hosted -path "*/flutter_v2ray*" -name "pubspec.yaml" | xargs cat || true
-
-      - name: Patch flutter_v2ray v1 embedding
-        run: |
-          # Find the plugin's AndroidManifest or plugin class and show content
-          PLUGIN_DIR=$(find /home/runner/.pub-cache/hosted -type d -name "flutter_v2ray*" | head -1)
-          echo "Plugin dir: $PLUGIN_DIR"
-          find "$PLUGIN_DIR" -type f | head -50
-
       - name: Build debug APK
         run: |
           cd /tmp/build_project

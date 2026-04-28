@@ -52,7 +52,7 @@ lib/
 
 | Package | Purpose |
 |---|---|
-| `flutter_v2ray` | V2Ray/Xray native bridge |
+| `flutter_vless` | V2Ray/Xray native bridge (v2 embedding) |
 | `flutter_riverpod` | State management |
 | `http` | Subscription fetch |
 | `flutter_animate` | UI animations |
